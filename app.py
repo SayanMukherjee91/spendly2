@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from config import YOUTUBE_EMBED_URL
+from youtubelink import YOUTUBE_EMBED_URL
 
 app = Flask(__name__)
 
