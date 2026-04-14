@@ -1,4 +1,5 @@
 from flask import Flask, render_template
+from config import YOUTUBE_EMBED_URL
 
 app = Flask(__name__)
 
@@ -9,7 +10,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def landing():
-    return render_template("landing.html")
+    return render_template("landing.html", youtube_embed_url=YOUTUBE_EMBED_URL)
 
 
 @app.route("/register")
