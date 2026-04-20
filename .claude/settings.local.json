@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//mnt/c/Users/mukhe/my-project/expense-tracker/venv/**)",
+      "Read(//c/mnt/c/Users/mukhe/my-project/expense-tracker/venv/**)",
+      "Read(//c//**)",
+      "Bash(venv/Scripts/python.exe -m pip install -r requirements.txt)",
+      "Bash(venv/Scripts/python.exe app.py)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)\\)\")",
+      "Bash(pytest)"
+    ]
+  }
+}
