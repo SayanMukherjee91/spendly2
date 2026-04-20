@@ -1,7 +1,7 @@
 import os
 import sqlite3
 from flask import Flask, render_template, request, session, redirect, url_for
-from werkzeug.security import generate_password_hash
+from werkzeug.security import generate_password_hash, check_password_hash
 from youtubelink import YOUTUBE_EMBED_URL
 from database.db import get_db, init_db, seed_db
 
@@ -64,9 +64,23 @@ def dashboard():
     return render_template("dashboard.html", user=user)
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    return render_template("login.html")
+    if request.method == "GET":
+        return render_template("login.html")
+
+    email    = request.form.get("email", "").strip()
+    password = request.form.get("password", "")
+
+    db   = get_db()
+    user = db.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    db.close()
+
+    if user is None or not check_password_hash(user["password_hash"], password):
+        return render_template("login.html", error="Invalid email or password.")
+
+    session["user_id"] = user["id"]
+    return redirect(url_for("dashboard"))
 
 
 # ------------------------------------------------------------------ #
@@ -85,7 +99,8 @@ def privacy():
 
 @app.route("/logout")
 def logout():
-    return "Logout — coming in Step 3"
+    session.clear()
+    return redirect(url_for("landing"))
 
 
 @app.route("/profile")
