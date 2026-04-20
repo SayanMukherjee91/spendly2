@@ -7,7 +7,26 @@
       "Bash(venv/Scripts/python.exe -m pip install -r requirements.txt)",
       "Bash(venv/Scripts/python.exe app.py)",
       "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)\\)\")",
-      "Bash(pytest)"
+      "Bash(pytest)",
+      "Bash(python -c ' *)",
+      "Bash(taskkill /F /IM python.exe)",
+      "Bash(python app.py)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:5001/)",
+      "Bash(python -B app.py --no-reload)",
+      "Bash(FLASK_DEBUG=0 python app.py)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:5001/register)",
+      "Bash(curl -s http://127.0.0.1:5001/)",
+      "Bash(taskkill /F /IM python.exe /T)",
+      "Bash(taskkill /F /IM python3.exe /T)",
+      "Bash(netstat -ano)",
+      "Bash(cmd /c \"taskkill /F /IM python.exe /T\")",
+      "Bash(cmd /c \"netstat -ano | findstr :5001 | findstr LISTEN\")",
+      "Bash(cmd /c \"taskkill /F /IM python.exe\")",
+      "Bash(cmd /c \"netstat -ano | findstr :5001\")",
+      "Bash(powershell -Command \"Get-Process python* | Stop-Process -Force\")",
+      "Bash(powershell -Command \"netstat -ano | Select-String ':5001.*LISTENING'\")",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)"
     ]
   }
 }
