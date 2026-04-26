@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}My Expenses — Spendly{% endblock %}
+
+{% block content %}
+<section class="profile-page">
+
+  <div class="expense-table-card">
+
+    <div class="expense-list-header">
+      <h3 class="table-heading" style="margin-bottom: 0;">All Expenses</h3>
+
+      {% if expenses %}
+      <div class="expense-filters">
+        <select id="filterMonth" class="filter-select">
+          <option value="">All</option>
+          {% for m in months %}
+          <option value="{{ m }}">{{ m }}</option>
+          {% endfor %}
+        </select>
+        <select id="filterCategory" class="filter-select">
+          <option value="">All</option>
+          {% for c in categories %}
+          <option value="{{ c }}">{{ c }}</option>
+          {% endfor %}
+        </select>
+        <button id="clearFilters" class="btn-ghost filter-clear" style="display:none;">
+          Clear
+        </button>
+      </div>
+      {% endif %}
+    </div>
+
+    {% if expenses %}
+    <p id="noResults" class="filter-no-results" style="display:none;">
+      No expenses match the selected filters.
+    </p>
+    <table class="expense-table">
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Month</th>
+          <th>Category</th>
+          <th>Description</th>
+          <th class="col-amount">Amount</th>
+        </tr>
+      </thead>
+      <tbody id="expenseBody">
+        {% for e in expenses %}
+        {%- set month_key = e["date"][:7] -%}
+        <tr data-month="{{ month_key }}" data-category="{{ e['category'] }}">
+          <td>{{ e["date"] }}</td>
+          <td>{{ e["date"][5:7] | int | month_name }} {{ e["date"][:4] }}</td>
+          <td><span class="category-badge">{{ e["category"] }}</span></td>
+          <td class="col-description">{{ e["description"] or "—" }}</td>
+          <td class="col-amount">₹{{ "%.2f" | format(e["amount"]) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state" style="padding: 2.5rem 1rem;">
+      <p class="empty-icon">◈</p>
+      <p class="empty-title">No expenses yet</p>
+      <p class="empty-body">Start tracking to see your expenses here.</p>
+    </div>
+    {% endif %}
+
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function () {
+  const monthSelect    = document.getElementById('filterMonth');
+  const categorySelect = document.getElementById('filterCategory');
+  const clearBtn       = document.getElementById('clearFilters');
+  const noResults      = document.getElementById('noResults');
+  const rows           = Array.from(document.querySelectorAll('#expenseBody tr'));
+
+  if (!monthSelect) return;
+
+  // Format month option labels: "2026-04" → "Apr 2026"
+  const MONTH_NAMES = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  monthSelect.querySelectorAll('option').forEach(opt => {
+    if (!opt.value) return;
+    const [y, mm] = opt.value.split('-');
+    opt.textContent = MONTH_NAMES[parseInt(mm, 10) - 1] + ' ' + y;
+  });
+
+  function applyFilters() {
+    const month    = monthSelect.value;
+    const category = categorySelect.value;
+    let visible = 0;
+
+    rows.forEach(row => {
+      const monthMatch    = !month    || row.dataset.month    === month;
+      const categoryMatch = !category || row.dataset.category === category;
+      const show = monthMatch && categoryMatch;
+      row.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+
+    noResults.style.display = visible === 0 ? '' : 'none';
+    clearBtn.style.display  = (month || category) ? '' : 'none';
+  }
+
+  monthSelect.addEventListener('change', applyFilters);
+  categorySelect.addEventListener('change', applyFilters);
+
+  clearBtn.addEventListener('click', () => {
+    monthSelect.value    = '';
+    categorySelect.value = '';
+    applyFilters();
+  });
+}());
+</script>
+{% endblock %}
