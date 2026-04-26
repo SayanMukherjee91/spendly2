@@ -2,23 +2,117 @@
 
 {% block title %}Dashboard — Spendly{% endblock %}
 
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+{% endblock %}
+
 {% block content %}
+<section class="profile-page">
 
-<section class="auth-section">
-    <div class="auth-container">
-
-        <div class="auth-header">
-            <h1 class="auth-title">Welcome back, {{ user["name"] }}!</h1>
-            <p class="auth-subtitle">Here's your spending overview.</p>
-        </div>
-
-        <div class="auth-card">
-            <p style="color: var(--ink-muted); text-align: center;">
-                Your expense dashboard is coming in the next steps.
-            </p>
-        </div>
-
+  {# ── Welcome header ─────────────────────────────────────────────── #}
+  <div class="profile-card">
+    <div class="profile-header" style="margin-bottom: 0; padding-bottom: 0; border-bottom: none;">
+      <div class="profile-avatar">{{ (user["name"] | default("?"))[0] | upper }}</div>
+      <div class="profile-info">
+        <h1 class="profile-name">Welcome back, {{ user["name"] }}!</h1>
+        <p class="profile-email">{{ user["email"] }}</p>
+      </div>
     </div>
-</section>
+  </div>
 
+  {# ── Summary strip ───────────────────────────────────────────────── #}
+  <div class="summary-strip">
+    <div class="summary-card">
+      <p class="summary-label">Total Spent</p>
+      <p class="summary-value">₹{{ "%.2f" | format(total_spend) }}</p>
+    </div>
+    <div class="summary-card">
+      <p class="summary-label">Transactions</p>
+      <p class="summary-value">{{ tx_count }}</p>
+    </div>
+    <div class="summary-card">
+      <p class="summary-label">Avg / Transaction</p>
+      <p class="summary-value">₹{{ "%.2f" | format(avg_spend) }}</p>
+    </div>
+  </div>
+
+  {# ── Charts ──────────────────────────────────────────────────────── #}
+  {% if monthly %}
+  <div class="chart-grid">
+    <div class="chart-card">
+      <h3>Monthly Spend</h3>
+      <div class="chart-canvas-wrap">
+        <canvas id="monthlyChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-card">
+      <h3>By Category</h3>
+      <div class="chart-canvas-wrap">
+        <canvas id="categoryChart"></canvas>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <p class="empty-icon">◈</p>
+    <p class="empty-title">No expenses yet</p>
+    <p class="empty-body">Add your first expense to see spending charts here.</p>
+  </div>
+  {% endif %}
+
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const monthly    = {{ monthly | tojson }};
+  const byCategory = {{ by_category | tojson }};
+
+  if (monthly.length) {
+    const style   = getComputedStyle(document.documentElement);
+    const accent  = style.getPropertyValue('--accent').trim()    || '#1a472a';
+    const accent2 = style.getPropertyValue('--accent-2').trim()  || '#c17f24';
+    const danger  = style.getPropertyValue('--danger').trim()    || '#c0392b';
+    const ink     = style.getPropertyValue('--ink-soft').trim()  || '#2d2d2d';
+    const muted   = style.getPropertyValue('--ink-muted').trim() || '#6b6b6b';
+
+    const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const fmtMonth = m => {
+      const [y, mm] = m.split('-');
+      return monthNames[parseInt(mm, 10) - 1] + ' ' + y;
+    };
+
+    new Chart(document.getElementById('monthlyChart'), {
+      type: 'bar',
+      data: {
+        labels:   monthly.map(r => fmtMonth(r.month)),
+        datasets: [{ label: 'Spent (₹)', data: monthly.map(r => r.total),
+                     backgroundColor: accent, borderRadius: 4 }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: { y: { beginAtZero: true, ticks: { callback: v => '₹' + v } } }
+      }
+    });
+
+    const palette = [accent, accent2, danger, ink, muted, '#7c8a85', '#a59473'];
+    new Chart(document.getElementById('categoryChart'), {
+      type: 'pie',
+      data: {
+        labels:   byCategory.map(r => r.category),
+        datasets: [{ data: byCategory.map(r => r.total), backgroundColor: palette }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: { callbacks: { label: ctx => ' ₹' + ctx.parsed.toFixed(2) } }
+        }
+      }
+    });
+  }
+</script>
 {% endblock %}
