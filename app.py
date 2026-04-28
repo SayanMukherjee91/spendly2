@@ -19,6 +19,19 @@ with app.app_context():
     seed_db()
 
 
+@app.context_processor
+def inject_nav_user():
+    name = session.get("user_name")
+    if not name and session.get("user_id"):
+        db = get_db()
+        row = db.execute("SELECT name FROM users WHERE id = ?", (session["user_id"],)).fetchone()
+        db.close()
+        if row:
+            name = row["name"]
+            session["user_name"] = name
+    return {"nav_user_name": name or ""}
+
+
 # ------------------------------------------------------------------ #
 # Routes                                                              #
 # ------------------------------------------------------------------ #
@@ -50,7 +63,8 @@ def register():
         )
         db.commit()
         user_id = db.execute("SELECT id FROM users WHERE email = ?", (email,)).fetchone()["id"]
-        session["user_id"] = user_id
+        session["user_id"]   = user_id
+        session["user_name"] = name
         return redirect(url_for("dashboard"))
     except sqlite3.IntegrityError:
         return render_template("register.html", error="An account with that email already exists.")
@@ -109,7 +123,8 @@ def login():
     if user is None or not check_password_hash(user["password_hash"], password):
         return render_template("login.html", error="Invalid email or password.")
 
-    session["user_id"] = user["id"]
+    session["user_id"]   = user["id"]
+    session["user_name"] = user["name"]
     return redirect(url_for("dashboard"))
 
 
@@ -153,6 +168,7 @@ def profile():
                 db.execute("UPDATE users SET name = ? WHERE id = ?", (new_name, user_id))
                 db.commit()
                 db.close()
+                session["user_name"] = new_name
                 return redirect(url_for("profile"))
 
         elif action == "change_password":

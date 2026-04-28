@@ -23,6 +23,10 @@
                 <a href="{{ url_for('dashboard') }}">Dashboard</a>
                 <a href="{{ url_for('expenses') }}">Expenses</a>
                 <a href="{{ url_for('profile') }}">Profile</a>
+                <a href="{{ url_for('profile') }}" class="nav-user">
+                    <span class="nav-user-avatar">{{ (nav_user_name or "?")[0] | upper }}</span>
+                    <span class="nav-user-name">{{ nav_user_name }}</span>
+                </a>
                 <a href="{{ url_for('logout') }}" class="nav-cta">Logout</a>
                 {% else %}
                 <a href="{{ url_for('login') }}">Sign in</a>
