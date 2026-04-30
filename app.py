@@ -221,9 +221,15 @@ def expenses():
         "SELECT DISTINCT category FROM expenses WHERE user_id = ? ORDER BY category",
         (user_id,)
     ).fetchall()]
+    by_category = [{"category": r["category"], "total": r["total"]} for r in db.execute(
+        "SELECT category, SUM(amount) AS total FROM expenses "
+        "WHERE user_id = ? GROUP BY category ORDER BY total DESC",
+        (user_id,)
+    ).fetchall()]
     db.close()
     return render_template("expenses.html",
-        expenses=expense_rows, months=months, categories=categories)
+        expenses=expense_rows, months=months, categories=categories,
+        by_category=by_category)
 
 
 @app.route("/expenses/add")
