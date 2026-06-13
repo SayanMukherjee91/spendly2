@@ -3,6 +3,7 @@
 {% block title %}Dashboard — Spendly{% endblock %}
 
 {% block head %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 {% endblock %}
 
@@ -44,6 +45,22 @@
       <div class="chart-canvas-wrap">
         <canvas id="monthlyChart"></canvas>
       </div>
+      {% if by_category %}
+      <div class="top-categories">
+        <p class="top-cat-label">Top spending categories</p>
+        <div class="top-cat-list">
+          {% for c in by_category[:3] %}
+          <div class="top-cat-item top-cat-item--{{ loop.index }}">
+            <div class="top-cat-meta">
+              <span class="top-cat-rank">{{ loop.index }}</span>
+              <span class="top-cat-name">{{ c.category }}</span>
+            </div>
+            <span class="top-cat-amount"><span class="currency">₹</span>{{ "%.2f" | format(c.total) }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
     </div>
     <div class="chart-card">
       <h3>By Category</h3>
@@ -52,6 +69,15 @@
       </div>
     </div>
   </div>
+
+  {# ── Combined bar + line chart ───────────────────────────────────── #}
+  <div class="chart-card chart-card--full">
+    <h3>Spend by Month &amp; Category</h3>
+    <div class="chart-canvas-wrap chart-canvas-wrap--tall">
+      <canvas id="combinedChart"></canvas>
+    </div>
+  </div>
+
   {% else %}
   <div class="empty-state">
     <p class="empty-icon">◈</p>
@@ -65,8 +91,9 @@
 
 {% block scripts %}
 <script>
-  const monthly    = {{ monthly | tojson }};
-  const byCategory = {{ by_category | tojson }};
+  const monthly     = {{ monthly | tojson }};
+  const byCategory  = {{ by_category | tojson }};
+  const catMonthly  = {{ cat_monthly | tojson }};
 
   if (monthly.length) {
     const style   = getComputedStyle(document.documentElement);
@@ -113,6 +140,56 @@
         }
       }
     });
+
+
+    if (catMonthly.length) {
+      const allCats = [...new Set(catMonthly.map(r => r.category))];
+
+      const lookup = {};
+      catMonthly.forEach(r => {
+        if (!lookup[r.category]) lookup[r.category] = {};
+        lookup[r.category][r.month] = r.total;
+      });
+
+      const monthKeys   = monthly.map(r => r.month);
+      const monthLabels = monthly.map(r => fmtMonth(r.month));
+
+      const barDataset = {
+        type: 'bar',
+        label: 'Monthly total',
+        data: monthly.map(r => r.total),
+        backgroundColor: accent + '55',
+        borderRadius: 4,
+        order: 2,
+      };
+
+      const lineColors = [accent, accent2, danger, ink, muted, '#7c8a85', '#a59473'];
+      const lineDatasets = allCats.map((cat, i) => ({
+        type: 'line',
+        label: cat,
+        data: monthKeys.map(m => lookup[cat][m] || 0),
+        borderColor: lineColors[i % lineColors.length],
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        pointRadius: 3,
+        tension: 0.3,
+        order: 1,
+      }));
+
+      new Chart(document.getElementById('combinedChart'), {
+        type: 'bar',
+        data: { labels: monthLabels, datasets: [barDataset, ...lineDatasets] },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: { callbacks: { label: ctx => ' Rs ' + ctx.parsed.y.toFixed(2) } }
+          },
+          scales: { y: { beginAtZero: true, ticks: { callback: v => 'Rs ' + v } } }
+        }
+      });
+    }
   }
 </script>
 {% endblock %}

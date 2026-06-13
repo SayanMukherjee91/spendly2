@@ -63,6 +63,12 @@ spendly/
 
 ---
 
+## Frontend Implementation Rule
+
+**Always invoke the `frontend` skill before writing any HTML, CSS, or JS.** Do this immediately after plan approval and before the first edit — not after. The skill encodes the design system (tokens, component patterns, file structure) that all templates and stylesheets must follow.
+
+---
+
 ## Commands
 ```bash
 # Setup

@@ -1,0 +1,89 @@
+/* ------------------------------------------------------------------ */
+/* Top-3 category notifications                                        */
+/* ------------------------------------------------------------------ */
+
+.top-categories {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+}
+
+.top-cat-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--ink-faint);
+    margin-bottom: 0.5rem;
+}
+
+.top-cat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.top-cat-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.45rem 0.75rem;
+    border-radius: var(--radius-sm);
+    border-left: 3px solid transparent;
+}
+
+.top-cat-item--1 { background: var(--danger-light);   border-left-color: var(--danger); }
+.top-cat-item--2 { background: var(--accent-2-light); border-left-color: var(--accent-2); }
+.top-cat-item--3 { background: var(--accent-light);   border-left-color: var(--accent); }
+
+.top-cat-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.top-cat-rank {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    border-radius: var(--radius-full);
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--paper);
+    flex-shrink: 0;
+}
+
+.top-cat-item--1 .top-cat-rank { background: var(--danger); }
+.top-cat-item--2 .top-cat-rank { background: var(--accent-2); }
+.top-cat-item--3 .top-cat-rank { background: var(--accent); }
+
+.top-cat-name {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--ink-soft);
+}
+
+.top-cat-amount {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--ink);
+}
+
+.top-cat-amount .currency {
+    font-size: 0.8em;
+}
+
+/* ------------------------------------------------------------------ */
+/* Combined chart card (full-width, below the chart-grid)             */
+/* ------------------------------------------------------------------ */
+
+.chart-card--full {
+    margin-top: 1.5rem;
+}
+
+.chart-canvas-wrap--tall {
+    height: 340px;
+}

@@ -141,6 +141,7 @@ SELECT DISTINCT category FROM expenses WHERE user_id = ? ORDER BY category
 ```
 
 ## Rules for implementation
+- **Frontend skill** — invoke the `frontend` skill before writing any HTML, CSS, or JS. Do this immediately after plan approval, before the first edit. The skill encodes design tokens, component patterns, and file-structure rules that must be followed.
 - No SQLAlchemy or ORMs — raw `sqlite3` via `get_db()`
 - Parameterised queries only — never interpolate user input into SQL
 - Passwords hashed with `werkzeug.security.generate_password_hash`; verified with `check_password_hash`

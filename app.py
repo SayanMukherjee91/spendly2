@@ -102,10 +102,20 @@ def dashboard():
     ).fetchall()
     by_category = [{"category": r["category"], "total": float(r["total"])} for r in cat_rows]
 
+    cat_monthly_rows = db.execute(
+        "SELECT strftime('%Y-%m', date) AS month, category, SUM(amount) AS total "
+        "FROM expenses WHERE user_id = ? GROUP BY month, category ORDER BY month ASC",
+        (user_id,)
+    ).fetchall()
+    cat_monthly = [
+        {"month": r["month"], "category": r["category"], "total": float(r["total"])}
+        for r in cat_monthly_rows
+    ]
+
     db.close()
     return render_template("dashboard.html", user=user,
         total_spend=total_spend, tx_count=tx_count, avg_spend=avg_spend,
-        monthly=monthly, by_category=by_category)
+        monthly=monthly, by_category=by_category, cat_monthly=cat_monthly)
 
 
 @app.route("/login", methods=["GET", "POST"])
